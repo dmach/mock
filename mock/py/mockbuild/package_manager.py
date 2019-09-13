@@ -72,6 +72,17 @@ class _PackageManager(object):
         self.init_install_output = ""
         self.bootstrap_buildroot = bootstrap_buildroot
 
+    def _get_bootstrap_container_command(self):
+        if not self.config['use_bootstrap_container_2']:
+            return []
+        cmd = [self.config['bootstrap_container_type'], 'run']
+        # bind mount installroot
+        cmd += ['--volume', '%(basedir)s:%(basedir)s:rw' % self.config]
+        # bind-mount GPG keys from host to the container
+        cmd += ['--volume', '/usr/share/distribution-gpg-keys:/usr/share/distribution-gpg-keys:ro']
+        cmd += ['-it', self.config['bootstrap_container_image']]
+        return cmd
+
     @traceLog()
     def build_invocation(self, *args):
         invocation = []
@@ -131,6 +142,7 @@ class _PackageManager(object):
             if not self.support_installroot:
                 out = util.do(invocation, env=env, chrootPath=self.buildroot.make_chroot_path(), **kwargs)
             elif self.bootstrap_buildroot is None:
+                invocation = self._get_bootstrap_container_command() + invocation
                 out = util.do(invocation, env=env, **kwargs)
             else:
                 out = util.do(invocation, env=env,

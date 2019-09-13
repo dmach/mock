@@ -931,6 +931,11 @@ def setup_default_config_opts(unprivUid, version, pkgpythondir):
     config_opts['use_container_host_hostname'] = True
     config_opts['use_bootstrap_container'] = False
 
+    # bootstrap container
+    config_opts['use_bootstrap_container_2'] = False
+    config_opts['bootstrap_container_type'] = 'podman'
+    config_opts['bootstrap_container_image'] = 'fedora:latest'
+
     config_opts['internal_dev_setup'] = True
 
     # cleanup_on_* only take effect for separate --resultdir
